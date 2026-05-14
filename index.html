@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A.I.G.F.™ Governance Guardian | AI For People</title>
+  <meta name="description" content="The A.I.G.F.™ Governance Guardian — an autonomous AI agent that audits, classifies, and reports on your AI project's compliance and risk posture." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f8cff'/%3E%3Cstop offset='100%25' stop-color='%23a855f7'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='white'%3E%E2%9A%96%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-shield">
+          <span class="logo-icon">⚖</span>
+        </div>
+        <div class="logo-text">
+          <span class="logo-brand">A.I.G.F.™</span>
+          <span class="logo-sub">Governance Guardian</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        <span>Powered by Google ADK</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ══ HERO ════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-glow hero-glow-1"></div>
+    <div class="hero-glow hero-glow-2"></div>
+    <div class="container">
+      <div class="hero-tag">Track 1 · Google Startups AI Agent Challenge</div>
+      <h1 class="hero-title">Autonomous AI<br /><span class="gradient-text">Governance</span> Auditing</h1>
+      <p class="hero-desc">Submit your AI project. Our Guardian agent searches your private knowledge base, cross-references live global regulations, and delivers a Board-Ready governance report — automatically.</p>
+    </div>
+  </section>
+
+  <!-- ══ MAIN PANEL ═══════════════════════════════════════════════ -->
+  <main class="main container">
+
+    <!-- Left: Sidebar Archive -->
+    <aside class="sidebar-archive">
+      <div class="archive-header">
+        <h3>📂 Audit Archive</h3>
+        <button class="btn-refresh" id="refresh-archive" title="Refresh">↻</button>
+      </div>
+      <div class="archive-list" id="archive-list">
+        <div class="archive-item-empty">No reports found.</div>
+      </div>
+    </aside>
+
+    <!-- Center: Input Form -->
+    <section class="card card-form" id="form-panel">
+      <div class="card-header">
+        <div class="card-icon">🔐</div>
+        <div>
+          <h2 class="card-title">Security Gate</h2>
+          <p class="card-subtitle">Your key is never stored.</p>
+        </div>
+      </div>
+
+      <form id="governance-form" autocomplete="off">
+
+        <div class="field-group">
+          <label class="field-label" for="api-key">Gemini API Key</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🔑</span>
+            <input type="password" id="api-key" class="field-input" placeholder="AIza..." required />
+            <button type="button" class="toggle-vis" id="toggle-key" title="Show/Hide key">👁</button>
+          </div>
+        </div>
+
+        <div class="divider"><span>Project Details</span></div>
+
+        <div class="field-group">
+          <label class="field-label" for="use-case">AI Use Case</label>
+          <textarea id="use-case" class="field-input field-textarea"
+            placeholder="e.g. A Quantum Teleportation data analysis platform that optimises lab research pipelines..."
+            rows="4" required></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="data-types">Data Types Handled</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🗄</span>
+            <input type="text" id="data-types" class="field-input"
+              placeholder="e.g. PII, Biometric, Financial records..." />
+          </div>
+        </div>
+
+        <div class="chip-group" id="quick-chips">
+          <span class="chip-label">Quick Add:</span>
+          <button type="button" class="chip" data-val="PII">PII</button>
+          <button type="button" class="chip" data-val="Quantum">Quantum</button>
+          <button type="button" class="chip" data-val="Biometric">Biometric</button>
+          <button type="button" class="chip" data-val="Financial">Financial</button>
+          <button type="button" class="chip" data-val="Medical">Medical</button>
+        </div>
+
+        <button type="submit" class="btn-primary" id="submit-btn">
+          <span class="btn-text">Run Governance Audit</span>
+          <span class="btn-icon">⚡</span>
+        </button>
+
+        <button type="button" class="btn-secondary" id="demo-btn" onclick="runDemo()">
+          <span class="btn-text">Try Demo Mode</span>
+          <span class="btn-icon">👁️</span>
+        </button>
+
+      </form>
+    </section>
+
+    <!-- Right: Results Panel -->
+    <section class="card card-results" id="results-panel">
+      <div class="card-header">
+        <div class="card-icon">📋</div>
+        <div>
+          <h2 class="card-title">Governance Report</h2>
+          <p class="card-subtitle" id="report-timestamp">Awaiting your submission…</p>
+        </div>
+        <button class="btn-export" id="export-btn" style="display:none">
+          ⬇ Export MD
+        </button>
+      </div>
+
+      <!-- Idle State -->
+      <div class="idle-state" id="idle-state">
+        <div class="idle-icon">⚖</div>
+        <p class="idle-title">Guardian is Standing By</p>
+        <p class="idle-desc">Fill in your project details and run an audit to generate your compliance report.</p>
+        <div class="idle-steps">
+          <div class="idle-step"><span class="step-num">1</span><span>Local RAG search</span></div>
+          <div class="idle-step"><span class="step-num">2</span><span>Global regulation check</span></div>
+          <div class="idle-step"><span class="step-num">3</span><span>Risk classification</span></div>
+          <div class="idle-step"><span class="step-num">4</span><span>Board-ready report</span></div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" id="loading-state" style="display:none">
+        <div class="spinner-ring"></div>
+        <p class="loading-title">Guardian is Analyzing…</p>
+        <div class="tool-timeline" id="tool-timeline"></div>
+      </div>
+
+      <!-- Report Output -->
+      <div class="report-output" id="report-output" style="display:none">
+        <!-- Risk Badge -->
+        <div class="risk-badge-row" id="risk-badge-row"></div>
+        <!-- Tool Steps -->
+        <div class="steps-row" id="steps-row"></div>
+        <!-- Report Text -->
+        <div class="report-text" id="report-text"></div>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" id="error-state" style="display:none">
+        <div class="error-icon">⚠️</div>
+        <p class="error-title" id="error-title">An error occurred</p>
+        <p class="error-msg" id="error-msg"></p>
+        <button class="btn-retry" id="retry-btn">Try Again</button>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ══ OBSERVABILITY LOG ════════════════════════════════════════ -->
+  <section class="log-section container" id="log-section" style="display:none">
+    <div class="log-header">
+      <h3 class="log-title">🔎 Agent Observability Log</h3>
+      <button class="btn-close-log" id="close-log">✕</button>
+    </div>
+    <div class="log-entries" id="log-entries"></div>
+  </section>
+
+  <!-- ══ FOOTER ═══════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>A.I.G.F.™ Governance Guardian · AI For People · Google Startups AI Agent Challenge 2026</span>
+      <button class="btn-log-toggle" id="show-log-btn">View Audit Log</button>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
