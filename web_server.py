@@ -294,10 +294,11 @@ def get_report(filename):
 
 if __name__ == "__main__":
     print("="*60)
-    print("   A.I.G.F.™ GOVERNANCE GUARDIAN — WEB SERVER (V2)")
+    print("   A.I.G.F. GOVERNANCE GUARDIAN - WEB SERVER (V2)")
     print("="*60)
-    print(f"\n✅ Server starting at: http://localhost:5050")
-    print(f"📂 Knowledge Base: {KNOWLEDGE_PATH}")
-    print(f"📋 Reports Path:   {REPORTS_PATH}")
+    print(f"\n[+] Server starting at: http://localhost:5050")
+    print(f"[+] Knowledge Base: {KNOWLEDGE_PATH}")
+    print(f"[+] Reports Path:   {REPORTS_PATH}")
     print(f"\nOpen your browser to: http://localhost:5050\n")
     app.run(host="0.0.0.0", port=5050, debug=False)
+
