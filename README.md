@@ -28,7 +28,7 @@ The **A.I.G.F.™ Governance Guardian** is an autonomous agent built on the **Go
 
 ## 🛠️ Technical Architecture
 
-- **Framework**: [Google Agent Development Kit (ADK)](https://github.com/google/adk)
+- **Framework**: [Google Agent Development Kit (ADK)]([https://github.com/google/adk](https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk)
 - **Model**: Gemini-1.5-Flash (via `InMemoryRunner`)
 - **Backend**: Python / Flask (Asynchronous Agent Execution)
 - **Frontend**: Glassmorphism UI (Vanilla JS/CSS)
