@@ -105,6 +105,21 @@ This agent is built on **Google's AI Principles**:
 - **Accountability**: Every agent decision is logged
 - **Privacy**: API keys are never stored; local RAG keeps data private
 - **Security**: 5-layer prompt injection defense stack validated via live red-team testing (Aug 20, 2026)
+
+---
+
+## 📜 License
+
+This project is protected under a **Custom Proprietary License**.
+
+- Viewing, testing, and academic use is permitted with attribution.
+- Commercial use, redistribution, or derivative products require written permission.
+- The **A.I.G.F.™** name and brand are trademarks of AI For People.
+
+See the [LICENSE](LICENSE) file for full terms.
+
+For commercial licensing inquiries: [ai4people.info](https://ai4people.info)
+
 ---
 
 **© 2026 AI For People** | [ai4people.info](https://ai4people.info)
