@@ -1,83 +1,110 @@
-# ⚖️ A.I.G.F.™ Governance Guardian
-### **The Autonomous "Privacy-First" AI Governance Agent**
-**Track 1: Build (Net-New Agent) | Google Startups AI Agent Challenge 2026**
+# A.I.G.F.™ Governance Guardian
+
+> **Google Startups AI Agent Challenge 2026 — Track 1 Submission**
+> Built by **AI For People** (Maurice Rankin)
 
 ---
 
-## 🚀 The Vision: Closing the "Governance Gap"
+## 🎯 Project Title
+**A.I.G.F.™ Governance Guardian** — Autonomous AI Governance Auditing Agent
 
-As AI development accelerates, organizations face a dangerous gap: deploying powerful models without real-time, expert oversight. Manual compliance is too slow, and public cloud governance tools expose sensitive IP.
+## 🔥 Problem to Solve
+As AI development accelerates, there is a dangerous **"Governance Gap"** — startups and research labs are deploying powerful models without real-time, expert oversight. Manual compliance checks are too slow for the age of AI, leaving organizations vulnerable to the **EU AI Act**, data privacy breaches (PII), and "hallucinated" policy adherence.
 
-The **A.I.G.F.™ Governance Guardian** is an autonomous agent built on the **Google Agent Development Kit (ADK)** that provides "Dual-Grounded" oversight directly at the edge. It is designed for researchers and startups who need expert governance over sensitive data (like Quantum Teleportation or PII) without ever letting it leave their local environment.
+## 💡 Our Solution
+The **A.I.G.F.™ Governance Guardian** is an autonomous AI agent built on the **Google Agent Development Kit (ADK)** that provides "Dual-Grounded" oversight.
 
----
+Unlike a static checklist, the Guardian is a **live agent** that:
+- 🔍 **Grounded Auditing** — Smart Keyword Search against private internal research (Local RAG)
+- 🌐 **Regulatory Intelligence** — Cross-references with EU AI Act, NIST, GDPR
+- 🏷️ **Automated Risk Tiering** — HIGH / MEDIUM / LOW classification with custom Oversight Policies
+- 🔎 **Production Observability** — Full JSON Audit Trail for every agent decision
+- ⚡ **Resilient Design** — Auto-retry on API rate limits, Demo Mode, premium web dashboard
 
-## ✨ Key Features
+## 🏗️ Architecture
+![Architecture Diagram](architecture_diagram.png)
 
-- **🔍 Dual-Grounded Auditing**: 
-  - **Local Grounding (RAG)**: Audits projects against private internal research and safety docs using a local Model Context Protocol (MCP) pattern.
-  - **Global Grounding**: Cross-references goals with live global regulations (EU AI Act, NIST, GDPR).
-- **🏷️ Automated Risk Tiering**: Instantly classifies projects into High, Medium, or Low risk and generates custom Board-Ready Oversight Policies.
-- **📊 Production-Grade Observability**: Maintains a detailed JSON Audit Trail for every decision, ensuring full transparency and institutional trust.
-- **🛡️ Enterprise Resilience**:
-  - **Exponential Backoff**: Advanced 30s-120s retry logic for handling API rate limits gracefully.
-  - **Request Protection**: 60s hard-timeouts and strict input sanitization.
-- **💎 Premium Dashboard**: A high-end Glassmorphism UI built with Vanilla JS and CSS for a lightweight, state-of-the-art user experience.
+See [architecture_diagram.md](architecture_diagram.md) for the full Mermaid diagram and data flow table.
 
----
+## 🛠️ Tech Stack
+| Component | Technology |
+|-----------|-----------|
+| Agent Framework | Google Agent Development Kit (ADK) |
+| LLM | Gemini Flash (via `InMemoryRunner`) |
+| Backend | Python / Flask |
+| Frontend | Vanilla HTML / CSS / JS (Glassmorphism) |
+| Grounding | Local Markdown RAG + Regulatory DB |
+| Observability | JSON Audit Event Logger |
+| Security | 5-Layer Defense Stack (Input Scanner, Identity Lock, XML Isolation, Risk Classifier, Output Scanner) |
 
-## 🛠️ Technical Architecture
-
-- **Framework**: [Google Agent Development Kit (ADK)][https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk]
-- **Model**: Gemini-1.5-Flash (via `InMemoryRunner`)
-- **Backend**: Python / Flask (Asynchronous Agent Execution)
-- **Frontend**: Glassmorphism UI (Vanilla JS/CSS)
-- **Grounding Engine**: Local Markdown RAG + Regulatory Simulation API
-
----
-
-## 📦 Installation & Setup
+## 🚀 Quick Start
 
 ### Prerequisites
 - Python 3.10+
-- A Google Gemini API Key
+- A Gemini API Key ([Get one here](https://aistudio.google.com/))
 
-### Quick Start
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/aigf-governance-guardian.git
-   cd aigf-governance-guardian
-   ```
+### Installation
+```bash
+cd AI4People_Challenge
+python -m venv venv
+# Windows:
+.\venv\Scripts\Activate.ps1
+# macOS/Linux:
+source venv/bin/activate
 
-2. **Install Dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+pip install -r requirements.txt
+```
 
-3. **Configure Environment (Optional)**:
-   Place your internal research markdown files in a folder named `Knowledge` in the parent directory, or set the environment variable:
-   ```bash
-   set AIGF_KNOWLEDGE_PATH=C:\Path\To\Your\Knowledge
-   ```
+### Run the Web Dashboard
+```bash
+python web_server.py
+```
+Open your browser to: **http://localhost:5050**
 
-4. **Launch the Guardian**:
-   ```bash
-   python web_server.py
-   ```
+### Run the CLI Agent
+```bash
+python agent.py
+```
 
-5. **Access the Dashboard**:
-   Open your browser to `http://localhost:5050`
+## 📁 Project Structure
+```
+AI4People_Challenge/
+├── web_server.py              # Flask API + ADK Agent (Web Mode)
+├── agent.py                   # CLI Agent (Standalone)
+├── agent_stable_v2.py         # Stable V2 Backup
+├── requirements.txt           # Python Dependencies
+├── submission_summary.md      # Challenge Submission Details
+├── architecture_diagram.md    # System Architecture (Mermaid)
+├── architecture_diagram.png   # Architecture Visual
+├── agent_observability_log.json  # Live Audit Trail
+├── AIGF_Security_ChangeLog_v3.docx  # Security Hardening Change Log
+├── web/
+│   ├── index.html             # Dashboard UI
+│   ├── style.css              # Premium Dark Theme
+│   └── app.js                 # Frontend Logic
+├── Reports/                   # Saved Governance Reports
+└── Knowledge/                 # Local RAG Knowledge Base (Markdown)
+```
 
+## 🎬 Demo Video
+[Watch the Demo →](YOUR_VIDEO_LINK_HERE)
+
+## 📋 Key Features Demonstrated
+1. **Security Gate** — API key input with show/hide toggle
+2. **Live Tool Timeline** — Watch the agent think in real-time
+3. **Risk Badge** — Auto-detected HIGH / MEDIUM / LOW classification
+4. **Audit Archive** — Clean, rolling list of the 5 most recent reports (older reports automatically fall off the list)
+5. **Export** — Download any report as `.md`
+6. **Demo Mode** — Full UI walkthrough without API connection
+7. **Rate Limit Resilience** — Graceful 30-second countdown on 429 errors
+8. **Cache-Prevention System** — Core client-and-server-side cache busting ensuring real-time dashboard updates without manual browser/server refreshes.
+
+## 🔐 Responsible AI Alignment
+This agent is built on **Google's AI Principles**:
+- **Safety**: Risk tiering prevents unaudited deployments
+- **Accountability**: Every agent decision is logged
+- **Privacy**: API keys are never stored; local RAG keeps data private
+- **Security**: 5-layer prompt injection defense stack validated via live red-team testing (Aug 20, 2026)
 ---
 
-## 🔎 Agent Observability
-The Guardian is designed for transparency. Every "thought," tool call, and result is captured in `agent_observability_log.json`. You can view this live audit log directly through the "View Audit Log" button in the dashboard footer.
-
----
-
-## ⚖️ License & Credits
-**Created by**: AI For People (Maurice Rankin)  
-**Challenge**: Google Startups AI Agent Challenge  
-**Year**: 2026
-
-*Disclaimer: This tool provides governance recommendations based on AI principles. Final accountability remains with the organization's human leadership.*
+**© 2026 AI For People** | [ai4people.info](https://ai4people.info)
