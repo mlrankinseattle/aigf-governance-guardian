@@ -71,7 +71,7 @@ python agent.py
 AI4People_Challenge/
 ├── web_server.py              # Flask API + ADK Agent (Web Mode)
 ├── agent.py                   # CLI Agent (Standalone)
-├── agent_stable_v2.py         # Stable V2 Backup
+├── agent_stable_v2.py         # Stable V3 Backup
 ├── requirements.txt           # Python Dependencies
 ├── submission_summary.md      # Challenge Submission Details
 ├── architecture_diagram.md    # System Architecture (Mermaid)
