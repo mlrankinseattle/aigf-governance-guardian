@@ -180,7 +180,7 @@ def health():
     """Health check endpoint for monitoring and submission demo."""
     return jsonify({
         "status": "online",
-        "agent": "AIGF_Governance_Guardian_V3",
+        "agent": "AIGF_Governance_Guardian_V3_1",
         "knowledge_base": os.path.exists(KNOWLEDGE_PATH),
         "reports_path": os.path.exists(REPORTS_PATH),
         "timestamp": datetime.now().isoformat()
@@ -220,7 +220,7 @@ def analyze():
             return jsonify({"error": "injection_detected", "message": "A.I.G.F. Security Gate blocked this request. Pattern detected: " + pattern + ". Logged."}), 400
 
     aigf_agent = Agent(
-        name="AIGF_Governance_Guardian_V3",
+        name="AIGF_Governance_Guardian_V3_1",
         model="gemini-flash-latest",
         instruction=(
             "You are the A.I.G.F.™ Guardian Agent representing 'AI For People'. "

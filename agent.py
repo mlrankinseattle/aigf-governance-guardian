@@ -216,7 +216,7 @@ async def main():
 
     # Initialize the Agent ONLY after the API Key is set
     aigf_agent = Agent(
-        name="AIGF_Governance_Guardian_V3",
+        name="AIGF_Governance_Guardian_V3_1",
         model="gemini-flash-latest", 
         instruction=(
             "You are the A.I.G.F.™ Guardian Agent representing 'AI For People'. "

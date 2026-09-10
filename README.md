@@ -5,6 +5,13 @@
 
 ---
 
+
+## 🎯 Public Red-Team Jailbreak Challenge
+We have initiated an open-arena security bounty on our 5-layer defensive stack! Can you bypass the Pre-Scanner, XML Isolation, Identity Lock, Risk Classifier, or Output Scanner?
+* 📜 **Challenge Rules & Scope:** Read the [CHALLENGE.md](CHALLENGE.md)
+* 🚀 **Submit Verified Payloads:** Open a [Bounty Submission Issue](https://github.com/mlrankinseattle/aigf-governance-guardian/issues/new?template=adversarial_payload_submission.md)
+
+---
 ## 🎯 Project Title
 **A.I.G.F.™ Governance Guardian** — Autonomous AI Governance Auditing Agent
 
@@ -71,7 +78,7 @@ python agent.py
 AI4People_Challenge/
 ├── web_server.py              # Flask API + ADK Agent (Web Mode)
 ├── agent.py                   # CLI Agent (Standalone)
-├── agent_stable_v2.py         # Stable V3 Backup
+├── agent_stable_v2.py         # Stable V3.1 Backup
 ├── requirements.txt           # Python Dependencies
 ├── submission_summary.md      # Challenge Submission Details
 ├── architecture_diagram.md    # System Architecture (Mermaid)
