@@ -5,7 +5,6 @@
 
 ---
 
-
 ## 🎯 Public Red-Team Jailbreak Challenge
 We have initiated an open-arena security bounty on our 5-layer defensive stack! Can you bypass the Pre-Scanner, XML Isolation, Identity Lock, Risk Classifier, or Output Scanner?
 * 📜 **Challenge Rules & Scope:** Read the [CHALLENGE.md](CHALLENGE.md)
@@ -29,9 +28,121 @@ Unlike a static checklist, the Guardian is a **live agent** that:
 - ⚡ **Resilient Design** — Auto-retry on API rate limits, Demo Mode, premium web dashboard
 
 ## 🏗️ Architecture
-![Architecture Diagram](architecture_diagram.png)
 
-See [architecture_diagram.md](architecture_diagram.md) for the full Mermaid diagram and data flow table.
+```mermaid
+flowchart TD
+    subgraph USER["👤 User / Stakeholder"]
+        Browser["Web Browser"]
+    end
+
+    subgraph UI_LAYER["🖥️ Presentation Layer"]
+        WebUI["Glassmorphism Dashboard\n(HTML / CSS / JS)"]
+        DemoMode["Demo Mode Engine"]
+        AuditArchive["📂 Audit Archive Viewer"]
+    end
+
+    subgraph API_LAYER["⚙️ Application Layer (Flask)"]
+        FlaskAPI["REST API Server\n(web_server.py : port 5050)"]
+        HealthCheck["/api/health"]
+        AnalyzeEP["/api/analyze"]
+        ReportsEP["/api/reports"]
+        LogsEP["/api/logs"]
+    end
+
+    subgraph AGENT_LAYER["🤖 Agent Layer (Google ADK)"]
+        ADKRunner["InMemoryRunner\n(Stateful Session)"]
+        GuardianAgent["A.I.G.F.™ Guardian Agent\n(gemini-flash-latest)"]
+        RetryLogic["HttpRetryOptions\n(Auto-Retry on 429)"]
+    end
+
+    subgraph TOOLS["🔧 Agent Tool Suite"]
+        T1["🔍 search_local_governance_context\n(Smart Keyword RAG)"]
+        T2["🌐 search_global_regulations\n(EU AI Act / NIST / GDPR)"]
+        T3["🏷️ classify_risk_tier\n(HIGH / MEDIUM / LOW)"]
+        T4["📜 generate_oversight_policy\n(Board-Ready Recommendations)"]
+        T5["💾 export_governance_report\n(Markdown Audit Trail)"]
+    end
+
+    subgraph DATA["💾 Data & Persistence"]
+        KnowledgeBase[("📁 Local Knowledge Base\nC:/Antigravity/Knowledge\n(.md Research Files)")]
+        ReportsStore[("📋 Reports Archive\nC:/.../Reports/\n(Saved .md Reports)")]
+        AuditLog[("🔎 Observability Log\nagent_observability_log.json")]
+    end
+
+    subgraph EXTERNAL["☁️ External Services"]
+        GeminiAPI["Google Gemini API\n(generativelanguage.googleapis.com)"]
+    end
+
+    %% User Flow
+    Browser --> WebUI
+    WebUI --> FlaskAPI
+    DemoMode -.->|"Offline Demo"| WebUI
+    AuditArchive --> ReportsEP
+
+    %% API Routes
+    FlaskAPI --> AnalyzeEP
+    FlaskAPI --> ReportsEP
+    FlaskAPI --> LogsEP
+    FlaskAPI --> HealthCheck
+
+    %% Agent Execution
+    AnalyzeEP --> ADKRunner
+    ADKRunner --> GuardianAgent
+    GuardianAgent --> RetryLogic
+    RetryLogic --> GeminiAPI
+
+    %% Tool Calls
+    GuardianAgent --> T1
+    GuardianAgent --> T2
+    GuardianAgent --> T3
+    GuardianAgent --> T4
+    GuardianAgent --> T5
+
+    %% Data Access
+    T1 --> KnowledgeBase
+    T5 --> ReportsStore
+    T1 --> AuditLog
+    T2 --> AuditLog
+    T5 --> AuditLog
+
+    %% Return Flow
+    GuardianAgent -->|"Streaming Report"| FlaskAPI
+    FlaskAPI -->|"JSON Response"| WebUI
+    ReportsEP -->|"Archive List"| AuditArchive
+    LogsEP -->|"Event History"| WebUI
+
+    %% Styling
+    classDef userStyle fill:#1e293b,stroke:#4f8cff,color:#e8eaf6,stroke-width:2px
+    classDef uiStyle fill:#111827,stroke:#4f8cff,color:#e8eaf6
+    classDef apiStyle fill:#0f1621,stroke:#a855f7,color:#e8eaf6
+    classDef agentStyle fill:#1a1040,stroke:#a855f7,color:#e8eaf6
+    classDef toolStyle fill:#0d1120,stroke:#22c55e,color:#e8eaf6
+    classDef dataStyle fill:#0d1120,stroke:#f59e0b,color:#e8eaf6
+    classDef extStyle fill:#1e293b,stroke:#ef4444,color:#e8eaf6
+
+    class Browser userStyle
+    class WebUI,DemoMode,AuditArchive uiStyle
+    class FlaskAPI,HealthCheck,AnalyzeEP,ReportsEP,LogsEP apiStyle
+    class ADKRunner,GuardianAgent,RetryLogic agentStyle
+    class T1,T2,T3,T4,T5 toolStyle
+    class KnowledgeBase,ReportsStore,AuditLog dataStyle
+    class GeminiAPI extStyle
+```
+
+### Data Flow Summary
+
+| Step | Component | Action |
+|------|-----------|--------|
+| 1 | **User** | Enters project description + data types via web form |
+| 2 | **Flask API** | Receives POST to `/api/analyze`, initializes ADK agent |
+| 3 | **Guardian Agent** | Gemini selects tools autonomously based on instructions |
+| 4 | **Tool: Local RAG** | Smart keyword search across private `.md` knowledge files |
+| 5 | **Tool: Global Regs** | Cross-references against EU AI Act, NIST, GDPR databases |
+| 6 | **Tool: Risk Tier** | Classifies project as HIGH / MEDIUM / LOW risk |
+| 7 | **Tool: Policy Gen** | Generates board-ready oversight recommendations |
+| 8 | **Tool: Export** | Saves final report to local audit trail as `.md` |
+| 9 | **Observability** | Every tool call logged to `agent_observability_log.json` |
+| 10 | **Response** | Streaming report rendered in the web dashboard |
 
 ## 🛠️ Tech Stack
 | Component | Technology |
@@ -82,7 +193,6 @@ AI4People_Challenge/
 ├── requirements.txt           # Python Dependencies
 ├── submission_summary.md      # Challenge Submission Details
 ├── architecture_diagram.md    # System Architecture (Mermaid)
-├── architecture_diagram.png   # Architecture Visual
 ├── agent_observability_log.json  # Live Audit Trail
 ├── AIGF_Security_ChangeLog_v3.docx  # Security Hardening Change Log
 ├── web/
