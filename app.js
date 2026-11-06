@@ -1,8 +1,16 @@
 /* ══════════════════════════════════════════════════════════════
-   A.I.G.F.™ Governance Guardian — Frontend Logic
+   A.I.G.F.™ Governance Guardian — Frontend Logic (V3.2 Hardened)
    ══════════════════════════════════════════════════════════════ */
 
-const API_BASE = window.location.origin;
+const API_BASE = window.location.port === '5050' ? window.location.origin : 'http://localhost:5050';
+
+// ── Sanitize HTML to prevent XSS (Defined at top) ──────────────
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}
 
 // ── DOM refs ──────────────────────────────────────────────────
 const form        = document.getElementById('governance-form');
@@ -30,7 +38,6 @@ const showLogBtn  = document.getElementById('show-log-btn');
 const closeLogBtn = document.getElementById('close-log');
 
 const archiveList = document.getElementById('archive-list');
-const refreshArchiveBtn = document.getElementById('refresh-archive');
 
 const errorTitle  = document.getElementById('error-title');
 const errorMsg    = document.getElementById('error-msg');
@@ -41,11 +48,28 @@ let currentReport = '';
 let lastSubmission = null;  // stores {api_key, use_case, data_types} for retry
 let retryAttempt   = 0;     // tracks exponential backoff attempt count
 
+// ── Helper to build auth headers ──────────────────────────────
+function getAuthHeaders() {
+  const key = apiKeyInput.value.trim();
+  const headers = {};
+  if (key) {
+    headers['X-API-Key'] = key;
+  }
+  return headers;
+}
+
 // ── API key visibility toggle ─────────────────────────────────
 toggleKey.addEventListener('click', () => {
   const isPass = apiKeyInput.type === 'password';
   apiKeyInput.type = isPass ? 'text' : 'password';
   toggleKey.textContent = isPass ? '🙈' : '👁';
+});
+
+// Refresh archive when user enters API key
+apiKeyInput.addEventListener('change', () => {
+  if (apiKeyInput.value.trim().length >= 10) {
+    loadArchive();
+  }
 });
 
 // ── Quick-add chips ───────────────────────────────────────────
@@ -68,11 +92,11 @@ function showPanel(name) {
   errorState.style.display   = name === 'error'   ? 'flex' : 'none';
 }
 
-// ── Add a live timeline item during loading ───────────────────
+// ── Add a live timeline item during loading (XSS-Safe) ─────────
 function addTimelineItem(type, text) {
   const div = document.createElement('div');
   div.className = `timeline-item ${type === 'call' ? 'timeline-call' : 'timeline-result'}`;
-  div.innerHTML = `<span class="tl-icon">${type === 'call' ? '⚙' : '✅'}</span> ${text}`;
+  div.innerHTML = `<span class="tl-icon">${type === 'call' ? '⚙' : '✅'}</span> ${escapeHtml(text)}`;
   toolTimeline.appendChild(div);
   toolTimeline.scrollTop = toolTimeline.scrollHeight;
 }
@@ -80,6 +104,7 @@ function addTimelineItem(type, text) {
 // ── Detect risk level from report text ───────────────────────
 function extractRiskLevel(report, steps) {
   const all = (report + JSON.stringify(steps)).toLowerCase();
+  if (all.includes('prohibited risk') || all.includes('unacceptable')) return 'PROHIBITED';
   if (all.includes('high risk'))   return 'HIGH';
   if (all.includes('medium risk')) return 'MEDIUM';
   return 'LOW';
@@ -91,10 +116,11 @@ function renderRiskBadge(level) {
   const badge = document.createElement('div');
   badge.className = `risk-badge risk-${level.toLowerCase()}`;
   badge.innerHTML = {
-    HIGH:   '🔴 HIGH RISK — HITL Required',
-    MEDIUM: '🟡 MEDIUM RISK — Review Required',
-    LOW:    '🟢 LOW RISK — Standard Monitoring',
-  }[level];
+    PROHIBITED: '⛔ PROHIBITED — Deployment Halted',
+    HIGH:       '🔴 HIGH RISK — HITL Required',
+    MEDIUM:     '🟡 MEDIUM RISK — Review Required',
+    LOW:        '🟢 LOW RISK — Standard Monitoring',
+  }[level] || '🟢 LOW RISK — Standard Monitoring';
   riskBadgeRow.appendChild(badge);
 }
 
@@ -115,13 +141,6 @@ function renderSteps(steps) {
     chip.textContent = TOOL_LABELS[t] || t;
     stepsRow.appendChild(chip);
   });
-}
-
-// ── Sanitize HTML to prevent XSS ──────────────────────────────
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
 }
 
 // ── Format report text with basic markdown ────────────────────
@@ -149,19 +168,29 @@ exportBtn.addEventListener('click', () => {
 // ── Retry button (exponential backoff) ───────────────────────
 retryBtn.addEventListener('click', () => {
   if (lastSubmission) {
-    // Re-run the last submission automatically
     runAudit(lastSubmission.api_key, lastSubmission.use_case, lastSubmission.data_types);
   } else {
     showPanel('idle');
   }
 });
 
-// ── Observability log ─────────────────────────────────────────
+// ── Observability log (Auth-gated & XSS-Safe) ──────────────────
 showLogBtn.addEventListener('click', async () => {
   logSection.style.display = 'block';
   logSection.scrollIntoView({ behavior: 'smooth' });
+
+  const headers = getAuthHeaders();
+  if (!headers['X-API-Key']) {
+    logEntries.innerHTML = '<div class="log-entry" style="color:var(--text-muted)">🔒 Please enter your Gemini API Key in the field above to authenticate log access.</div>';
+    return;
+  }
+
   try {
-    const res  = await fetch(`${API_BASE}/api/logs`);
+    const res  = await fetch(`${API_BASE}/api/logs?_=${Date.now()}`, { headers });
+    if (res.status === 401) {
+      logEntries.innerHTML = '<div class="log-entry" style="color:#ef4444">🔒 Unauthorized: Invalid or missing API key.</div>';
+      return;
+    }
     const logs = await res.json();
     logEntries.innerHTML = '';
     if (!logs.length) {
@@ -172,9 +201,9 @@ showLogBtn.addEventListener('click', async () => {
       const div = document.createElement('div');
       div.className = 'log-entry';
       div.innerHTML = `
-        <span class="log-ts">${new Date(entry.timestamp).toLocaleTimeString()}</span>
-        <span class="log-step"> · ${entry.step}</span>
-        <div style="margin-top:4px;color:var(--text-primary)">${entry.output}</div>
+        <span class="log-ts">${escapeHtml(new Date(entry.timestamp).toLocaleTimeString())}</span>
+        <span class="log-step"> · ${escapeHtml(entry.step)}</span>
+        <div style="margin-top:4px;color:var(--text-primary)">${escapeHtml(entry.output)}</div>
       `;
       logEntries.appendChild(div);
     });
@@ -212,7 +241,7 @@ function runDemo() {
 }
 
 function renderDemoReport() {
-  const mockReport = `# A.I.G.F.™ Governance Report: Quantum Demo\n\n## Executive Summary\nThis project involves high-complexity quantum data processing with PII. Governance oversight is MANDATORY.\n\n## Risk Assessment\n**Risk Tier:** HIGH RISK\n**Impact:** High potential for non-deterministic output errors.\\n\n## Policy\nEstablish Executive Accountability Board. Implement real-time HITL audit trails.`;
+  const mockReport = `# A.I.G.F.™ Governance Report: Quantum Demo\n\n## Executive Summary\nThis project involves high-complexity quantum data processing with PII. Governance oversight is MANDATORY.\n\n## Risk Assessment\n**Risk Tier:** HIGH RISK\n**Impact:** High potential for non-deterministic output errors.\n\n## Policy\nEstablish Executive Accountability Board. Implement real-time HITL audit trails.`;
   currentReport = mockReport;
   renderRiskBadge('HIGH');
   renderSteps([{type:'tool_call', name:'search_local_governance_context'}, {type:'tool_call', name:'search_global_regulations'}, {type:'tool_call', name:'classify_risk_tier'}]);
@@ -239,16 +268,25 @@ function startCountdown(seconds) {
   }, 1000);
 }
 
-// Calculate next backoff delay: 30s → 60s → 120s (capped)
 function getBackoffDelay() {
   const delays = [30, 60, 120];
   return delays[Math.min(retryAttempt - 1, delays.length - 1)];
 }
 
-// ── Reports Archive ───────────────────────────────────────────
+// ── Reports Archive (Auth-gated & XSS-Safe) ────────────────────
 async function loadArchive() {
+  const headers = getAuthHeaders();
+  if (!headers['X-API-Key']) {
+    archiveList.innerHTML = '<div class="archive-item-empty">Enter your API key above to view saved reports.</div>';
+    return;
+  }
+
   try {
-    const res = await fetch(`${API_BASE}/api/reports`);
+    const res = await fetch(`${API_BASE}/api/reports?_=${Date.now()}`, { headers });
+    if (res.status === 401) {
+      archiveList.innerHTML = '<div class="archive-item-empty">Enter your API key above to view saved reports.</div>';
+      return;
+    }
     const files = await res.json();
     archiveList.innerHTML = '';
     if (!files.length) {
@@ -258,7 +296,8 @@ async function loadArchive() {
     files.forEach(file => {
       const div = document.createElement('div');
       div.className = 'archive-item';
-      div.innerHTML = `<span class="arch-icon">📄</span> <span class="arch-name">${file.replace('AIGF_Report_', '').replace('.md', '')}</span>`;
+      const cleanName = escapeHtml(file.replace('AIGF_Report_', '').replace('.md', ''));
+      div.innerHTML = `<span class="arch-icon">📄</span> <span class="arch-name">${cleanName}</span>`;
       div.onclick = () => loadSavedReport(file);
       archiveList.appendChild(div);
     });
@@ -269,11 +308,17 @@ async function loadArchive() {
 
 async function loadSavedReport(file) {
   try {
-    const res = await fetch(`${API_BASE}/api/reports/${file}`);
+    const headers = getAuthHeaders();
+    const safeFilename = encodeURIComponent(file);
+    const res = await fetch(`${API_BASE}/api/reports/${safeFilename}?_=${Date.now()}`, { headers });
+    if (res.status === 401) {
+      alert("Please enter a valid API key above to view saved reports.");
+      return;
+    }
     const data = await res.json();
     currentReport = data.content;
     const rl = data.content.toLowerCase();
-    renderRiskBadge(rl.includes('high risk') ? 'HIGH' : rl.includes('medium risk') ? 'MEDIUM' : 'LOW');
+    renderRiskBadge(rl.includes('prohibited') ? 'PROHIBITED' : rl.includes('high risk') ? 'HIGH' : rl.includes('medium risk') ? 'MEDIUM' : 'LOW');
     stepsRow.innerHTML = '<div class="step-chip">📜 Loaded from Archive</div>';
     reportTxt.innerHTML = formatReport(data.content);
     timestamp.textContent = `Viewing archived report: ${file}`;
@@ -283,9 +328,6 @@ async function loadSavedReport(file) {
     alert("Could not load report.");
   }
 }
-
-refreshArchiveBtn.onclick = loadArchive;
-loadArchive(); // Initial load
 
 // ── Core audit runner (used by form submit AND retry) ─────────
 async function runAudit(api_key, use_case, data_types) {
@@ -324,7 +366,7 @@ async function runAudit(api_key, use_case, data_types) {
     // Success — reset backoff counter
     retryAttempt = 0;
 
-    // ── Animate tool steps ──
+    // ── Animate tool steps (XSS-Safe) ──
     if (data.steps && data.steps.length) {
       for (const step of data.steps) {
         await new Promise(r => setTimeout(r, 250));
@@ -374,3 +416,6 @@ form.addEventListener('submit', (e) => {
   retryAttempt = 0; // reset backoff on fresh submit
   runAudit(api_key, use_case, data_types);
 });
+
+// Initial archive check
+loadArchive();
