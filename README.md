@@ -225,6 +225,11 @@ This agent is built on **Google's AI Principles**:
 
 ---
 
+## 🤝 Security Peer Review & Acknowledgments
+
+Special thanks to **Nathan Freestone ([The Elora Taurus Project](https://ai.elorataurus.com/engineering#open-source-research))** for independent static code review and responsible disclosure contributions leading to the v3.2 security hardening release.
+
+---
 ## 📜 License
 
 This project is protected under a **Custom Proprietary License**.
