@@ -12,6 +12,8 @@ import sys
 import json
 import asyncio
 import re
+import hmac
+import html
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
@@ -60,16 +62,21 @@ class RequestIsolatedGemini(Gemini):
 # Paths (relative for portability)
 # ─────────────────────────────────────────────────────────────────────
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
-KNOWLEDGE_PATH = os.environ.get("AIGF_KNOWLEDGE_PATH", os.path.join(BASE_DIR, "..", "Knowledge"))
+_pub_kb        = os.path.join(BASE_DIR, "..", "Knowledge", "Public_Governance")
+KNOWLEDGE_PATH = os.environ.get("AIGF_KNOWLEDGE_PATH", _pub_kb if os.path.isdir(_pub_kb) else os.path.join(BASE_DIR, "..", "Knowledge"))
 REPORTS_PATH   = os.path.join(BASE_DIR, "Reports")
 LOG_FILE       = os.path.join(BASE_DIR, "agent_observability_log.json")
+ADMIN_API_KEY  = os.environ.get("AIGF_ADMIN_KEY", "").strip()
 
 # Auto-detect web files location (supports both web/ subfolder and root-level)
 _web_sub = os.path.join(BASE_DIR, "web")
 WEB_DIR  = _web_sub if os.path.isdir(_web_sub) and os.path.exists(os.path.join(_web_sub, "index.html")) else BASE_DIR
 
 app = Flask(__name__, static_folder=WEB_DIR)
-CORS(app)
+_default_origins = ["http://127.0.0.1:5050", "http://localhost:5050"]
+_env_origins = os.environ.get("AIGF_ALLOWED_ORIGINS", "").strip()
+ALLOWED_ORIGINS = [o.strip() for o in _env_origins.split(",") if o.strip()] if _env_origins else _default_origins
+CORS(app, origins=ALLOWED_ORIGINS)
 
 @app.after_request
 def add_header(response):
@@ -159,16 +166,22 @@ def scan_output_content(content: str) -> tuple[bool, str]:
 # ─────────────────────────────────────────────────────────────────────
 def validate_access() -> bool:
     """
-    Enforces authentication for administrative, log, and report access.
-    Accepts X-API-Key header, Authorization: Bearer, or api_key parameter.
+    Enforces strict administrative authentication for log and report access.
+    Accepts X-API-Key or Authorization: Bearer header only (never URL query params).
+    Validates against server-configured AIGF_ADMIN_KEY using hmac.compare_digest().
     """
+    admin_key = os.environ.get("AIGF_ADMIN_KEY", ADMIN_API_KEY).strip()
+    if not admin_key:
+        return False
+
     auth_header = request.headers.get("X-API-Key") or request.headers.get("Authorization")
     if auth_header and auth_header.startswith("Bearer "):
         auth_header = auth_header[7:].strip()
-    key = auth_header or request.args.get("api_key")
-    if not key or len(key.strip()) < 10:
+    key = (auth_header or "").strip()
+    if not key:
         return False
-    return True
+
+    return hmac.compare_digest(key.encode("utf-8"), admin_key.encode("utf-8"))
 
 # ─────────────────────────────────────────────────────────────────────
 # A.I.G.F. Tools
@@ -330,7 +343,7 @@ def health():
     """Health check endpoint for monitoring and submission demo."""
     return jsonify({
         "status": "online",
-        "agent": "AIGF_Governance_Guardian_V3_2_Hardened",
+        "agent": "AIGF_Governance_Guardian_V3_2_1_Hardened",
         "knowledge_base": os.path.exists(KNOWLEDGE_PATH),
         "reports_path": os.path.exists(REPORTS_PATH),
         "audit_logger_healthy": _AUDIT_LOG_HEALTHY,
@@ -375,13 +388,13 @@ def analyze():
 
     # Thread-safe, request-isolated model instance (No process-wide os.environ mutation)
     isolated_model = RequestIsolatedGemini(
-        model="gemini-flash-latest",
+        model="gemini-3.8-flash",
         api_key=api_key,
         retry_options=types.HttpRetryOptions(initial_delay=2, attempts=3)
     )
 
     aigf_agent = Agent(
-        name="AIGF_Governance_Guardian_V3_2",
+        name="AIGF_Governance_Guardian_V3_2_1",
         model=isolated_model,
         instruction=(
             "You are the A.I.G.F.™ Guardian Agent representing 'AI For People'. "
@@ -403,10 +416,12 @@ def analyze():
                classify_risk_tier, generate_oversight_policy, export_governance_report]
     )
 
+    safe_use_case = html.escape(use_case, quote=True)
+    safe_data_types = html.escape(data_types, quote=True)
     prompt = (
         f"<project_submission>\n"
-        f"  <use_case>{use_case}</use_case>\n"
-        f"  <data_types>{data_types}</data_types>\n"
+        f"  <use_case>{safe_use_case}</use_case>\n"
+        f"  <data_types>{safe_data_types}</data_types>\n"
         f"</project_submission>\n"
         f"Evaluate this AI project strictly based on the provided passive data above."
     )
@@ -469,7 +484,7 @@ def get_logs():
     if not validate_access():
         return jsonify({
             "error": "unauthorized",
-            "message": "Authentication required. Please provide a valid Gemini API key via X-API-Key header to view audit logs."
+            "message": "Authentication required. Please provide a valid admin key via X-API-Key header to view audit logs."
         }), 401
 
     if os.path.exists(LOG_FILE):
@@ -485,7 +500,7 @@ def list_reports():
     if not validate_access():
         return jsonify({
             "error": "unauthorized",
-            "message": "Authentication required. Please provide a valid Gemini API key via X-API-Key header to view saved reports."
+            "message": "Authentication required. Please provide a valid admin key via X-API-Key header to view saved reports."
         }), 401
 
     if not os.path.exists(REPORTS_PATH):
@@ -499,7 +514,7 @@ def get_report(filename):
     if not validate_access():
         return jsonify({
             "error": "unauthorized",
-            "message": "Authentication required. Please provide a valid Gemini API key via X-API-Key header to access this report."
+            "message": "Authentication required. Please provide a valid admin key via X-API-Key header to access this report."
         }), 401
 
     if ".." in filename or "/" in filename or "\\" in filename:
@@ -512,7 +527,7 @@ def get_report(filename):
 
 if __name__ == "__main__":
     print("="*60)
-    print("   A.I.G.F. GOVERNANCE GUARDIAN - WEB SERVER (V3.2)")
+    print("   A.I.G.F. GOVERNANCE GUARDIAN - WEB SERVER (V3.2.1)")
     print("   Security Hardened: Concurrency Isolation & Auth Gating")
     print("="*60)
     print(f"\n[+] Server starting at: http://localhost:5050")

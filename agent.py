@@ -12,6 +12,7 @@ import sys
 import json
 import asyncio
 import re
+import html
 from datetime import datetime
 
 os.environ["AUTHLIB_SKIP_DEPRECATION_WARNING"] = "1"
@@ -43,7 +44,8 @@ from google.genai.types import Content, Part
 
 BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
 LOG_FILE       = os.path.join(BASE_DIR, "agent_observability_log.json")
-KNOWLEDGE_PATH = os.environ.get("AIGF_KNOWLEDGE_PATH", os.path.join(BASE_DIR, "..", "Knowledge"))
+_pub_kb        = os.path.join(BASE_DIR, "..", "Knowledge", "Public_Governance")
+KNOWLEDGE_PATH = os.environ.get("AIGF_KNOWLEDGE_PATH", _pub_kb if os.path.isdir(_pub_kb) else os.path.join(BASE_DIR, "..", "Knowledge"))
 REPORTS_PATH   = os.path.join(BASE_DIR, "Reports")
 
 # ─────────────────────────────────────────────────────────────────────
@@ -265,7 +267,7 @@ async def main():
 
     aigf_agent = Agent(
         name="AIGF_Governance_Guardian_V3_2",
-        model="gemini-flash-latest",
+        model="gemini-3.8-flash",
         instruction=(
             "You are the A.I.G.F.™ Guardian Agent representing 'AI For People'. "
             "Your mission is to provide 'Responsible AI' governance that aligns with Google's AI Principles: "
@@ -308,10 +310,12 @@ async def main():
             log_agent_event("INPUT_BLOCKED_CLI", startup_idea[:100], f"Injection: {pattern}")
             return
 
+    safe_startup_idea = html.escape(startup_idea, quote=True)
+    safe_data_handled = html.escape(data_handled, quote=True)
     prompt = (
         f"<project_submission>\n"
-        f"  <use_case>{startup_idea}</use_case>\n"
-        f"  <data_types>{data_handled}</data_types>\n"
+        f"  <use_case>{safe_startup_idea}</use_case>\n"
+        f"  <data_types>{safe_data_handled}</data_types>\n"
         f"</project_submission>\n"
         f"Evaluate this AI project strictly based on the provided passive data above."
     )

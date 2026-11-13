@@ -223,13 +223,20 @@ This agent is built on **Google's AI Principles**:
 - **Privacy**: API keys are never stored; local RAG keeps data private
 - **Security**: 5-layer prompt injection defense stack validated via live red-team testing (Aug 20, 2026)
 
+### 🛡️ Security Hardening (v3.2.1)
+- **Admin Endpoint Authentication (`AIGF_ADMIN_KEY`)**: `/api/logs` and `/api/reports` require a server-configured `AIGF_ADMIN_KEY` passed via the `X-API-Key` or `Authorization: Bearer <token>` header (validated in constant time via `hmac.compare_digest()`). URL query-parameter authentication has been removed, and Gemini API keys are rejected for admin endpoints.
+- **Restricted CORS (`AIGF_ALLOWED_ORIGINS`)**: Cross-origin requests are restricted by default to `http://127.0.0.1:5050` and `http://localhost:5050` (overrideable via comma-separated `AIGF_ALLOWED_ORIGINS`).
+- **XML/HTML Input Escaping**: User-supplied `use_case` and `data_types` fields are escaped with `html.escape(..., quote=True)` before embedding inside `<project_submission>` XML boundary tags to prevent tag breakout and prompt injection.
+- **Credential & Artifact Hygiene**: Plaintext service account keys have been removed, and `.gitignore` enforces exclusion of `*.pdf`, `*.key`, `*.pem`, `*.cert`, `.env*`, and `*.json` (except `agent_observability_log.json`).
+
 ---
 
 ## 🤝 Security Peer Review & Acknowledgments
 
-Special thanks to **Nathan Freestone ([The Elora Taurus Project](https://ai.elorataurus.com/engineering#open-source-research))** for independent static code review and responsible disclosure contributions leading to the v3.2 security hardening release.
+Special thanks to **Nathan Freestone ([The Elora Taurus Project](https://ai.elorataurus.com/engineering#open-source-research))** for independent static code review and responsible disclosure contributions leading to the v3.2 / v3.2.1 security hardening releases.
 
 ---
+
 ## 📜 License
 
 This project is protected under a **Custom Proprietary License**.
